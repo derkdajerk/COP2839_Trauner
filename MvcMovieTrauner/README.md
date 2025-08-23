@@ -1,4 +1,4 @@
-#Documentation for Module 1 Movie MVC App
+#Documentation for Module 1 Movie MVC App#
 
 This app is a base demo for a MVC App using ASP.NET Core w/ C#.
 - Used for storing movies in a SQL database with CRUD abilities.
