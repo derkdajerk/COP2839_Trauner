@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using MvcMovieTrauner.Data;
 using MvcMovieTrauner.Models;
 using System;
@@ -13,10 +14,12 @@ namespace MvcMovieTrauner.Controllers
     public class MoviesController : Controller
     {
         private readonly MvcMovieTraunerContext _context;
+        private readonly ILogger<MoviesController> _logger;
 
-        public MoviesController(MvcMovieTraunerContext context)
+        public MoviesController(MvcMovieTraunerContext context, ILogger<MoviesController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: Movies
@@ -24,6 +27,7 @@ namespace MvcMovieTrauner.Controllers
         {
             if (_context.Movie == null)
             {
+                _logger.LogError("Object is null at {Time}", DateTimeOffset.UtcNow);
                 return Problem("Entity set 'MvcMovieTraunerContext.Movie'  is null.");
             }
 
@@ -50,6 +54,7 @@ namespace MvcMovieTrauner.Controllers
                 Movies = await movies.ToListAsync()
             };
 
+            _logger.LogDebug("Got movies successfully");
             return View(movieGenreVM);
         }
 
@@ -58,6 +63,7 @@ namespace MvcMovieTrauner.Controllers
         {
             if (id == null)
             {
+                _logger.LogError("Movie ID is null at {Time}", DateTimeOffset.UtcNow);
                 return NotFound();
             }
 
@@ -65,9 +71,11 @@ namespace MvcMovieTrauner.Controllers
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (movie == null)
             {
+                _logger.LogError("Movie object is null at {Time}", DateTimeOffset.UtcNow);
                 return NotFound();
             }
 
+            _logger.LogDebug("Got movie successfully");
             return View(movie);
         }
 
@@ -90,6 +98,7 @@ namespace MvcMovieTrauner.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            _logger.LogDebug("Created movies successfully");
             return View(movie);
         }
 
@@ -98,14 +107,17 @@ namespace MvcMovieTrauner.Controllers
         {
             if (id == null)
             {
+                _logger.LogError("Movie ID is null at {Time}", DateTimeOffset.UtcNow);
                 return NotFound();
             }
 
             var movie = await _context.Movie.FindAsync(id);
             if (movie == null)
             {
+                _logger.LogError("Movie object is null at {Time}", DateTimeOffset.UtcNow);
                 return NotFound();
             }
+            _logger.LogDebug("Edit movie view successfully");
             return View(movie);
         }
 
@@ -118,6 +130,7 @@ namespace MvcMovieTrauner.Controllers
         {
             if (id != movie.Id)
             {
+                _logger.LogError("Movie ID is null at {Time}", DateTimeOffset.UtcNow);
                 return NotFound();
             }
 
@@ -132,6 +145,7 @@ namespace MvcMovieTrauner.Controllers
                 {
                     if (!MovieExists(movie.Id))
                     {
+                        _logger.LogError("Movie object is null at {Time}", DateTimeOffset.UtcNow);
                         return NotFound();
                     }
                     else
@@ -141,6 +155,7 @@ namespace MvcMovieTrauner.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            _logger.LogDebug("Edited movie successfully");
             return View(movie);
         }
 
@@ -149,6 +164,7 @@ namespace MvcMovieTrauner.Controllers
         {
             if (id == null)
             {
+                _logger.LogError("Movie ID is null at {Time}", DateTimeOffset.UtcNow);
                 return NotFound();
             }
 
@@ -156,9 +172,10 @@ namespace MvcMovieTrauner.Controllers
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (movie == null)
             {
+                _logger.LogError("Movie object is null at {Time}", DateTimeOffset.UtcNow);
                 return NotFound();
             }
-
+            _logger.LogDebug("Delete movie view successfully");
             return View(movie);
         }
 
@@ -172,8 +189,8 @@ namespace MvcMovieTrauner.Controllers
             {
                 _context.Movie.Remove(movie);
             }
-
             await _context.SaveChangesAsync();
+            _logger.LogDebug("Deleted movie successfully");
             return RedirectToAction(nameof(Index));
         }
 
