@@ -1,13 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using MvcMovieTrauner.Data;
 using MvcMovieTrauner.Models;
+using MvcMovieTrauner.Services;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<MvcMovieTraunerContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("MvcMovieTraunerContext") ?? throw new InvalidOperationException("Connection string 'MvcMovieTraunerContext' not found.")));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<IMovieService, MovieService>();
 
 var app = builder.Build();
 

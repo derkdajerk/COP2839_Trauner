@@ -1,57 +1,48 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using MvcMovieTrauner.Data;
 using MvcMovieTrauner.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using MvcMovieTrauner.Services;
 
 namespace MvcMovieTrauner.Controllers
 {
     public class MoviesController : Controller
     {
-        private readonly MvcMovieTraunerContext _context;
+        private readonly IMovieService _movies;
         private readonly ILogger<MoviesController> _logger;
 
-        public MoviesController(MvcMovieTraunerContext context, ILogger<MoviesController> logger)
+        public MoviesController(IMovieService movies, ILogger<MoviesController> logger)
         {
-            _context = context;
+            _movies = movies;
             _logger = logger;
         }
 
         // GET: Movies
         public async Task<IActionResult> Index(string movieGenre, string searchString)
         {
-            if (_context.Movie == null)
-            {
-                _logger.LogError("Object is null at {Time}", DateTimeOffset.UtcNow);
-                return Problem("Entity set 'MvcMovieTraunerContext.Movie'  is null.");
-            }
+            IEnumerable<Movie> all = await _movies.GetAllAsync();
+            IEnumerable<Movie> movies = all;
+            IEnumerable<string?> genreQuery = all.Select(movie => movie.Genre).Distinct();
 
-            IQueryable<string> genreQuery = from m in _context.Movie
-                                            orderby m.Genre
-                                            select m.Genre;
-
-            var movies = from m in _context.Movie
-                         select m;
 
             if (!String.IsNullOrEmpty(searchString))
             {
-                movies = movies.Where(s => s.Title!.ToUpper().Contains(searchString.ToUpper()));
+                movies = movies.Where(movie => movie.Title != null
+                                        && movie.Title.ToUpper().Contains(searchString, StringComparison.OrdinalIgnoreCase));
+                _logger.LogInformation("Searching by string {searchString}", searchString);
+                // using _logger.Info was unavailable to me, could not figure out why.
             }
 
             if (!string.IsNullOrEmpty(movieGenre))
             {
-                movies = movies.Where(x => x.Genre == movieGenre);
+                movies = movies.Where(movie => movie.Genre == movieGenre);
+                _logger.LogInformation("Searching by genre {movieGenre}", movieGenre);
+                // using _logger.Info was unavailable to me, could not figure out why.
             }
 
             var movieGenreVM = new MovieGenreViewModel
             {
-                Genres = new SelectList(await genreQuery.Distinct().ToListAsync()),
-                Movies = await movies.ToListAsync()
+                Genres = new SelectList(genreQuery),
+                Movies = movies.ToList()
             };
 
             _logger.LogDebug("Got movies successfully");
@@ -59,29 +50,18 @@ namespace MvcMovieTrauner.Controllers
         }
 
         // GET: Movies/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null)
-            {
-                _logger.LogError("Movie ID is null at {Time}", DateTimeOffset.UtcNow);
-                return NotFound();
-            }
+            var movie = await _movies.GetByIdAsync(id);
 
-            var movie = await _context.Movie
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (movie == null)
-            {
-                _logger.LogError("Movie object is null at {Time}", DateTimeOffset.UtcNow);
-                return NotFound();
-            }
-
-            _logger.LogDebug("Got movie successfully");
+            _logger.LogInformation("Displaying details for movie {id}", id);
             return View(movie);
         }
 
         // GET: Movies/Create
         public IActionResult Create()
         {
+            _logger.LogInformation("Create GET");
             return View();
         }
 
@@ -92,32 +72,22 @@ namespace MvcMovieTrauner.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Title,ReleaseDate,Genre,Price,Rating")] Movie movie)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _context.Add(movie);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                _logger.LogWarning("Create POST model invalid");
+                return View(movie);
             }
-            _logger.LogDebug("Created movies successfully");
-            return View(movie);
+
+            await _movies.AddAsync(movie);
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Movies/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null)
-            {
-                _logger.LogError("Movie ID is null at {Time}", DateTimeOffset.UtcNow);
-                return NotFound();
-            }
+            var movie = await _movies.GetByIdAsync(id);
 
-            var movie = await _context.Movie.FindAsync(id);
-            if (movie == null)
-            {
-                _logger.LogError("Movie object is null at {Time}", DateTimeOffset.UtcNow);
-                return NotFound();
-            }
-            _logger.LogDebug("Edit movie view successfully");
+            _logger.LogInformation("Edit GET, movie id {id}", id);
             return View(movie);
         }
 
@@ -128,54 +98,21 @@ namespace MvcMovieTrauner.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Title,ReleaseDate,Genre,Price,Rating")] Movie movie)
         {
-            if (id != movie.Id)
+            if (!ModelState.IsValid)
             {
-                _logger.LogError("Movie ID is null at {Time}", DateTimeOffset.UtcNow);
-                return NotFound();
+                _logger.LogWarning("Edit POST model is invalid");
+                return View(movie);
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(movie);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!MovieExists(movie.Id))
-                    {
-                        _logger.LogError("Movie object is null at {Time}", DateTimeOffset.UtcNow);
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            _logger.LogDebug("Edited movie successfully");
-            return View(movie);
+            await _movies.UpdateAsync(movie);
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Movies/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null)
-            {
-                _logger.LogError("Movie ID is null at {Time}", DateTimeOffset.UtcNow);
-                return NotFound();
-            }
-
-            var movie = await _context.Movie
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (movie == null)
-            {
-                _logger.LogError("Movie object is null at {Time}", DateTimeOffset.UtcNow);
-                return NotFound();
-            }
-            _logger.LogDebug("Delete movie view successfully");
+            var movie = await _movies.GetByIdAsync(id);
+            _logger.LogInformation("Delete GET, movie id {id}", id);
             return View(movie);
         }
 
@@ -184,19 +121,9 @@ namespace MvcMovieTrauner.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var movie = await _context.Movie.FindAsync(id);
-            if (movie != null)
-            {
-                _context.Movie.Remove(movie);
-            }
-            await _context.SaveChangesAsync();
-            _logger.LogDebug("Deleted movie successfully");
+            await _movies.DeleteAsync(id);
+            _logger.LogInformation("Deleted movie successfully");
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool MovieExists(int id)
-        {
-            return _context.Movie.Any(e => e.Id == id);
         }
     }
 }
