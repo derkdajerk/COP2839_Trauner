@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MvcMovieTrauner.Data;
+using MvcMovieTrauner.Features.Movies.Models;
+using MvcMovieTrauner.Features.Movies.Services;
 using MvcMovieTrauner.Models;
-using MvcMovieTrauner.Services;
 using System;
 using System.Threading.Tasks;
 using Xunit;

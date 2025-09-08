@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MvcMovieTrauner.Data;
-using MvcMovieTrauner.Models;
+using MvcMovieTrauner.Features.Movies.Models;
 
-namespace MvcMovieTrauner.Services
+namespace MvcMovieTrauner.Features.Movies.Services
 {
     public class MovieService : IMovieService
     {

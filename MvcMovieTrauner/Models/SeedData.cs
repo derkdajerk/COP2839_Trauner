@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MvcMovieTrauner.Data;
+using MvcMovieTrauner.Features.Movies.Models;
 using System;
 using System.Linq;
 
@@ -42,6 +43,7 @@ namespace MvcMovieTrauner.Models
                         Title = "Ghostbusters 2",
                         ReleaseDate = DateTime.Parse("1986-2-23"),
                         Genre = "Comedy",
+                        Rating = "PG-13",
                         Price = 9.99M
                     },
                     new Movie

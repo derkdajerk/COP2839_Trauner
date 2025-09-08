@@ -1,8 +1,8 @@
-﻿using MvcMovieTrauner.Models;
+﻿using MvcMovieTrauner.Features.Movies.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace MvcMovieTrauner.Services
+namespace MvcMovieTrauner.Features.Movies.Services
 {
     public interface IMovieService
     {
