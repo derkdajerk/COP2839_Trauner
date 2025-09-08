@@ -21,3 +21,19 @@ Separation of Concerns:
 Dependency Injection:  
 - Used in the abstraction IMovieService, allowing the MoviesController to interact/update movie data without all the logic of the data itself being there.
 - Also, allows for mock service testing without needing to change the actual code. We use ASP.NET Core's built-in Dependency Injection to do so.
+
+**Route Map**
+- The app uses attribute routing and feature folders to define clear and RESTful endpoints for each controller.
+
+MoviesController Route Map:
+- `/movies` : List all movies (GET)
+- `/movies/details/{id}` : Show details for a movie by ID (GET)
+- `/movies/create` : Show create form (GET), or create a movie (POST)
+- `/movies/edit/{id}` : Show edit form (GET), or update a movie (POST)
+- `/movies/delete/{id}` : Show delete confirmation (GET), or delete a movie (POST)
+- `/movies/bygenre/{genre}` : List movies filtered by genre (GET)
+- `/movies/released/{year}/{month?}` : List movies released in a specific year and month(optional) (GET)
+
+HelloWorldController Route Map: 
+- `/hello` : Show the HelloWorld index page (GET)
+- `/hello/welcome/{name?}/{numTimes?}` : Show a welcome message for a given name and number of times (GET)
