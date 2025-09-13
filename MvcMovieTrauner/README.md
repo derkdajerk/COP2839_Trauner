@@ -26,14 +26,14 @@ Dependency Injection:
 - The app uses attribute routing and feature folders to define clear and RESTful endpoints for each controller.
 
 MoviesController Route Map:
-- `/movies` : List all movies (GET)
-- `/movies/details/{id}` : Show details for a movie by ID (GET)
-- `/movies/create` : Show create form (GET), or create a movie (POST)
-- `/movies/edit/{id}` : Show edit form (GET), or update a movie (POST)
-- `/movies/delete/{id}` : Show delete confirmation (GET), or delete a movie (POST)
-- `/movies/bygenre/{genre}` : List movies filtered by genre (GET)
-- `/movies/released/{year}/{month?}` : List movies released in a specific year and month(optional) (GET)
+- `https://localhost:7134/movies` : List all movies (GET)
+- `https://localhost:7134/movies/details/{id}` : Show details for a movie by ID (GET)
+- `https://localhost:7134/movies/create` : Show create form (GET), or create a movie (POST)
+- `https://localhost:7134/movies/edit/{id}` : Show edit form (GET), or update a movie (POST)
+- `https://localhost:7134/movies/delete/{id}` : Show delete confirmation (GET), or delete a movie (POST)
+- `https://localhost:7134/movies/bygenre/{genre}` : List movies filtered by genre (GET)
+- `https://localhost:7134/movies/released/{year}/{month?}` : List movies released in a specific year and month(optional) (GET)
 
 HelloWorldController Route Map: 
-- `/hello` : Show the HelloWorld index page (GET)
-- `/hello/welcome/{name?}/{numTimes?}` : Show a welcome message for a given name and number of times (GET)
+- `https://localhost:7134/hello` : Show the HelloWorld index page (GET)
+- `https://localhost:7134/hello/welcome/{name?}/{numTimes?}` : Show a welcome message for a given name and number of times (GET)
