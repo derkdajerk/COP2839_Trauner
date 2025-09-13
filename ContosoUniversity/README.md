@@ -1,6 +1,6 @@
 # Documentation for Module 4 Contoso University Application
 
-This app is a base demo for a Razor Pages app built with C#.
+This app is a base demo for an MVC Razor Pages app built with C#.
 - Used for storing school information in a SQL database with CRUD abilities.
 
 To run this app you must clone this repository locally, install all dependencies needed (Web App Development in Visual Studio Installer)
