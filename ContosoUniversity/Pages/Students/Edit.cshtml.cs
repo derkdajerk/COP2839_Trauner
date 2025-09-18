@@ -43,11 +43,6 @@ namespace ContosoUniversity.Pages.Students
         // For more information, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync(int id)
         {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
-
             var studentToUpdate = await _context.Student.FindAsync(id);
 
             if (studentToUpdate == null)
