@@ -68,6 +68,7 @@ namespace ContosoUniversity.Pages.Students
             {
                 _context.Student.Remove(student);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Student deleted successfully!";
                 return RedirectToPage("./Index");
             }
             catch (DbUpdateException ex)

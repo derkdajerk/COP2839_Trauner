@@ -39,6 +39,7 @@ namespace ContosoUniversity.Pages.Students
             {
                 _context.Student.Add(emptyStudent);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Student created successfully!";
                 return RedirectToPage("./Index");
             }
 

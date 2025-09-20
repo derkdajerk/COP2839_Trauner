@@ -56,6 +56,7 @@ namespace ContosoUniversity.Pages.Students
                 s => s.FirstName, s => s.LastName, s => s.EnrollmentDate))
             {
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Student edited successfully!";
                 return RedirectToPage("./Index");
             }
 
